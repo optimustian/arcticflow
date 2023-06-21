@@ -6,16 +6,27 @@ find_package(LLVM REQUIRED CONFIG)
 message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
 message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
 
-# Set your project compile flags.
-# E.g. if using the C++ header files
-# you will need to enable C++11 support
-# for your compiler.
-
 include_directories(${LLVM_INCLUDE_DIRS})
 add_definitions(${LLVM_DEFINITIONS})
 
+include_directories("./include")
+
+find_package(FLEX 2.6 REQUIRED)
+find_package(BISON 3.0 REQUIRED)
+set(SIM_PARSER_DIR "${CMAKE_CURRENT_BINARY_DIR}")
+set(SIM_PARSER_SRC_DIR "./parser")
+set(SIM_LEXER_OUT "${SIM_PARSER_DIR}/sim_lexer.cpp")
+set(SIM_PARSER_OUT "${SIM_PARSER_DIR}/sim_parser.cpp")
+flex_target(SIM_LEXER "${SIM_PARSER_SRC_DIR}/lexer.l" "${SIM_LEXER_OUT}" DEFINES_FILE "${SIM_PARSER_DIR}/sim_lexer.h")
+bison_target(SIM_PARSER "${SIM_PARSER_SRC_DIR}/parser.y" "${SIM_PARSER_OUT}" DEFINES_FILE "${SIM_PARSER_DIR}/sim_parser.h")
+
+file(GLOB SIM_SRC_DIR_LIST "./parser/*.cpp" "./parser/*.c")
+include_directories("${SIM_PARSER_DIR}")
+
+add_flex_bison_dependency(SIM_LEXER SIM_PARSER)
+
 # Now build our tools
-add_executable(arcticflow Main.cpp)
+add_executable(arcticflow Main.cpp ${SIM_LEXER_OUT} ${SIM_PARSER_OUT} ${SIM_SRC_DIR_LIST})
 
 # Find the libraries that correspond to the LLVM components
 # that we wish to use
