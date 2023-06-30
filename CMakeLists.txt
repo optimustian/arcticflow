@@ -25,7 +25,17 @@ include_directories("${SIM_PARSER_DIR}")
 
 add_flex_bison_dependency(SIM_LEXER SIM_PARSER)
 
+
+# PreProcessor
+set(PRE_PROCESSOR_DIR "${CMAKE_CURRENT_BINARY_DIR}")
+set(PRE_PROCESSOR_SRC_DIR "./parser/PreProcessor")
+set(PRE_PROCESSOR_LEXER_OUT "${PRE_PROCESSOR_DIR}/preLexer.cpp")
+set(PRE_PROCESSOR_PARSER_OUT "${PRE_PROCESSOR_DIR}/preParser.cpp")
+flex_target(PRE_PROCESSOR_LEXER "${PRE_PROCESSOR_SRC_DIR}/preLexer.l" "${PRE_PROCESSOR_LEXER_OUT}" DEFINES_FILE "${PRE_PROCESSOR_DIR}/preLexer.h")
+bison_target(PRE_PROCESSOR_PARSER "${PRE_PROCESSOR_SRC_DIR}/preParser.y" "${PRE_PROCESSOR_PARSER_OUT}" DEFINES_FILE "${PRE_PROCESSOR_DIR}/preParser.h")
+add_flex_bison_dependency(PRE_PROCESSOR_LEXER PRE_PROCESSOR_PARSER)
 # Now build our tools
+add_executable(preProcessor PreProcessor.cpp ${PRE_PROCESSOR_LEXER_OUT} ${PRE_PROCESSOR_PARSER_OUT})
 add_executable(arcticflow Main.cpp ${SIM_LEXER_OUT} ${SIM_PARSER_OUT} ${SIM_SRC_DIR_LIST})
 
 # Find the libraries that correspond to the LLVM components
