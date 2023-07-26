@@ -3,6 +3,8 @@ project(arcticflow)
 
 find_package(LLVM REQUIRED CONFIG)
 
+set(CMAKE_BUILD_TYPE "Debug")
+
 message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
 message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
 
